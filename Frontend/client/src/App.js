@@ -233,48 +233,6 @@ import AllOrders from "./AllOrders.js";
 import MyOrders from "./MyOrders.js";
 import AllTrades from "./AllTrades.js";
 
-//rainbowKits,Wagmi
-import "@rainbow-me/rainbowkit/styles.css";
-import { connectorsForWallets, wallet, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
-import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
-import { ButtonComponents} from "./ButtonComponents";
-
-
-const { chains, provider } = configureChains(
-    [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, chain.foundry, chain.goerli, chain.localhost, chain.polygonMumbai,  chain.hardhat, chain.rinkeby ],
-    [alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }), publicProvider()]
-);
-
-const connectors = connectorsForWallets([
-    {
-        groupName: "Recommended",
-        wallets: [
-            wallet.metaMask({chains}),
-            wallet.rainbow({chains}),
-            wallet.trust({chains}),
-            wallet.coinbase({chains}),
-        ],
-    },
-    {
-        groupName: "More",
-        wallets: [
-            wallet.argent({chains}),
-            wallet.steak({chains}),
-            wallet.ledger({chains}),
-            wallet.brave({ chains }),
-            // wallet.imToken({ chains }),
-        ],
-    },
-]);
-
-const wagmiClient = createClient({
-    autoConnect: true,
-    connectors,
-    provider
-});
-
 
 const SIDE = {
     BUY: 0,
@@ -437,65 +395,52 @@ function App({web3, accounts, contracts}) {
     }
 
     return (
-        <WagmiConfig client={wagmiClient}>
-            <RainbowKitProvider chains={chains} coolMode
-                                theme={darkTheme({
-                                    // accentColor: '#4B0082',
-                                    accentColor: '#1F75FE',
-                                    accentColorForeground: 'white',
-                                    borderRadius: 'large',
-                                    fontStack: 'system',
-                                    overlayBlur: 'small',
-                                })} >
-                <div id="app">
-                    <Header
-                        contracts={contracts}
-                        tokens={tokens}
-                        user={user}
-                        selectToken={selectToken}
-                    />
-                    <main className="container-fluid">
-                        <div className="row">
-                            <div className="col-sm-4 first-col">
-                                <Wallet
-                                    user={user}
-                                    deposit={deposit}
-                                    withdraw={withdraw}
-                                />
-                                {user.selectedToken.ticker !== "FNX" ? (
-                                    <NewOrder
-                                        createMarketOrder={createMarketOrder}
-                                        createLimitOrder={createLimitOrder}
-                                    />
-                                ) : null}
-                            </div>
-                            {user.selectedToken.ticker !== "FNX" ? (
-                                <div className="col-sm-8">
-                                    <AllTrades
-                                        trades={trades}
-                                    />
-                                    <AllOrders
-                                        orders={orders}
-                                    />
-                                    <MyOrders
-                                        orders={{
-                                            buy: orders.buy.filter(
-                                                order => order.trader.toLowerCase() === accounts[0].toLowerCase()
-                                            ),
-                                            sell: orders.sell.filter(
-                                                order => order.trader.toLowerCase() === accounts[0].toLowerCase()
-                                            )
-                                        }}
-                                    />
-                                </div>
-                            ) : null}
+        <div id="app">
+            <Header
+                contracts={contracts}
+                tokens={tokens}
+                user={user}
+                selectToken={selectToken}
+            />
+            <main className="container-fluid">
+                <div className="row">
+                    <div className="col-sm-4 first-col">
+                        <Wallet
+                            user={user}
+                            deposit={deposit}
+                            withdraw={withdraw}
+                        />
+                        {user.selectedToken.ticker !== "FNX" ? (
+                            <NewOrder
+                                createMarketOrder={createMarketOrder}
+                                createLimitOrder={createLimitOrder}
+                            />
+                        ) : null}
+                    </div>
+                    {user.selectedToken.ticker !== "FNX" ? (
+                        <div className="col-sm-8">
+                            <AllTrades
+                                trades={trades}
+                            />
+                            <AllOrders
+                                orders={orders}
+                            />
+                            <MyOrders
+                                orders={{
+                                    buy: orders.buy.filter(
+                                        order => order.trader.toLowerCase() === accounts[0].toLowerCase()
+                                    ),
+                                    sell: orders.sell.filter(
+                                        order => order.trader.toLowerCase() === accounts[0].toLowerCase()
+                                    )
+                                }}
+                            />
                         </div>
-                    </main>
-                    <Footer/>
+                    ) : null}
                 </div>
-                <ButtonComponents/>
-            </RainbowKitProvider>
-        </WagmiConfig>
+            </main>
+            <Footer/>
+        </div>
     );
 }
 

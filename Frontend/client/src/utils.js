@@ -49,6 +49,7 @@
 
 
 
+import detectEthereumProvider from "@metamask/detect-provider";
 import Web3 from "web3";
 import DecentralizedExchange from "./contracts/DecentralizedExchange.json";
 import ERC20Abi from "./ERC20Abi.json";
@@ -56,7 +57,13 @@ import ERC20Abi from "./ERC20Abi.json";
 const getWeb3 = () =>
     new Promise( async (resolve, reject) => {
         try {
-            const web3 = new Web3(window.ethereum);
+            const provider = await detectEthereumProvider();
+            if (!provider) {
+                reject(new Error("Please install MetaMask to continue."));
+                return;
+            }
+            await provider.request({ method: "eth_requestAccounts" });
+            const web3 = new Web3(provider);
             resolve(web3);
         } catch(error) {
             reject(error);
